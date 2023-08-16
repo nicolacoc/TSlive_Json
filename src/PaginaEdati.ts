@@ -134,7 +134,15 @@ export function GetDataSnapshot(DataSnapshot: any) {
     return tot;
 }
 
-export function getToPage({DatiArray, location}: any){
+type page = {
+    DatiArray: Array<any>,
+    location: {
+        country: string,
+        city: string
+    }
+}
+
+export function getToPage({DatiArray, location}: page){
     const cont: Element = document.querySelector(".container");
 
     let tot : string = ``;
