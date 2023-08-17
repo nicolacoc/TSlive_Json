@@ -139,7 +139,7 @@ type page = {
     location: {
         country: string,
         city: string
-    }
+    }[]
 }
 
 export function getToPage({DatiArray, location}: page){
