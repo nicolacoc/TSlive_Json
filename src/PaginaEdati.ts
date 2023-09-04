@@ -60,7 +60,13 @@ export function PromiseToAirQualityData(promisesResult : any) {
     return {data, promisesLocation};
 }
 
-export async function getResult({data, promisesLocation}){
+
+type Result1 = {
+    data: any[],
+    promisesLocation: Array<any>
+}
+
+export async function getResult({data, promisesLocation}: Result1){
     let DatiArray : any = [... data];
     let result2 : any = await Promise.all(promisesLocation);
     let location : any[] = [];
@@ -79,7 +85,7 @@ export async function getResult({data, promisesLocation}){
     return {DatiArray, location}
 }
 
-export function GetDataSnapshot(DataSnapshot: any) {
+function GetDataSnapshot(DataSnapshot: any) {
     let tot : string =``
     DataSnapshot.forEach(({Values, timeStamp}) => {
         tot+=`<ul class="snapshot-data list-group list-group-flush">`
