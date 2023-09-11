@@ -1,5 +1,32 @@
 import {FetchLocation} from "./fetch";
 
+type DataLocation = {
+    Location: {
+        long: number,
+        lat: number,
+        placeID: number,
+    },
+    DataSnapshot: Array<DataSnapshot>
+}
+
+type DataSnapshot = {
+        Values: Array<any>,
+        timeStamp:Date
+}
+
+type page = {
+    DatiArray: Array<DataLocation>,
+    location: {
+        country: string,
+        city: string
+    }[]
+}
+
+type Result1 = {
+    data: DataLocation[],
+    promisesLocation: Array<any>
+}
+
 export function GetMap(lat : number, lng: number){
     const key : string = "";
     return `<div class="map">
@@ -16,9 +43,9 @@ export function GetMap(lat : number, lng: number){
 
 }
 
-export function PromiseToAirQualityData(promisesResult : any) {
-    let data = [];
-    const promisesLocation= [];
+export function PromiseToAirQualityData(promisesResult : Array<any> ) : Result1 {
+    let data: Array<DataLocation> = [];
+    const promisesLocation: any[] = [];
     promisesResult.forEach((singleResult: any) => {
         if (singleResult instanceof Array && singleResult.length > 0){
             let location = singleResult[0].location;
@@ -43,8 +70,8 @@ export function PromiseToAirQualityData(promisesResult : any) {
                     placeID: placeID,
                 },
                 DataSnapshot: singleResult.map(result => {
-                    const Values : any = [...result.sensordatavalues];
-                    const timeStamp = result.timestamp;
+                    const Values : any[] = [...result.sensordatavalues];
+                    const timeStamp: Date = result.timestamp;
                     return {
                         Values,
                         timeStamp
@@ -61,12 +88,7 @@ export function PromiseToAirQualityData(promisesResult : any) {
 }
 
 
-type Result1 = {
-    data: any[],
-    promisesLocation: Array<any>
-}
-
-export async function getResult({data, promisesLocation}: Result1){
+export async function getResult({data, promisesLocation}: Result1): Promise<page>  {
     let DatiArray : any = [... data];
     let result2 : any = await Promise.all(promisesLocation);
     let location : any[] = [];
@@ -85,14 +107,14 @@ export async function getResult({data, promisesLocation}: Result1){
     return {DatiArray, location}
 }
 
-function GetDataSnapshot(DataSnapshot: any) {
+function GetDataSnapshot(DataSnapshot: Array<DataSnapshot>):string {
     let tot : string =``
-    DataSnapshot.forEach(({Values, timeStamp}) => {
+    DataSnapshot.forEach(({Values, timeStamp}:DataSnapshot) :void => {
         tot+=`<ul class="snapshot-data list-group list-group-flush">`
 
-        Values.forEach(({value_type, value}) => {
-            let Value1 : string = "";
-            let type : string="";
+        Values.forEach(({value_type, value}) :void => {
+            let Value1 : string|null|unknown;
+            let type : string|null|unknown;
             if (value_type === "temperature") {
                 type = "Temperatura";
                 Value1 = `${Math.round(value)}°C`
@@ -129,7 +151,7 @@ function GetDataSnapshot(DataSnapshot: any) {
                             </div>
                             </li>`
         })
-        let ts = new Date(timeStamp);
+        let ts: Date = new Date(timeStamp);
         tot += `
                         </ul>
                         <div class="card-body text-end">
@@ -140,15 +162,8 @@ function GetDataSnapshot(DataSnapshot: any) {
     return tot;
 }
 
-type page = {
-    DatiArray: Array<any>,
-    location: {
-        country: string,
-        city: string
-    }[]
-}
 
-export function getToPage({DatiArray, location}: page){
+export function getToPage({DatiArray, location}: page): void{
     const cont: Element = document.querySelector(".container");
 
     let tot : string = ``;
