@@ -113,8 +113,8 @@ function GetDataSnapshot(DataSnapshot: Array<DataSnapshot>):string {
         tot+=`<ul class="snapshot-data list-group list-group-flush">`
 
         Values.forEach(({value_type, value}) :void => {
-            let Value1 : string|null|unknown;
-            let type : string|null|unknown;
+            let Value1 : string|null|undefined;
+            let type : string|null|undefined;
             if (value_type === "temperature") {
                 type = "Temperatura";
                 Value1 = `${Math.round(value)}°C`
