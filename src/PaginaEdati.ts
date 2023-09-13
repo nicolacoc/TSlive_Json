@@ -1,31 +1,7 @@
 import {FetchLocation} from "./fetch";
+import {DataLocation, DataSnapshot, page, Result1, rowSensor, rowsensordatavalues} from "./type"
 
-type DataLocation = {
-    Location: {
-        long: number,
-        lat: number,
-        placeID: number,
-    },
-    DataSnapshot: Array<DataSnapshot>
-}
 
-type DataSnapshot = {
-        Values: Array<any>,
-        timeStamp:Date
-}
-
-type page = {
-    DatiArray: Array<DataLocation>,
-    location: {
-        country: string,
-        city: string
-    }[]
-}
-
-type Result1 = {
-    data: DataLocation[],
-    promisesLocation: Array<any>
-}
 
 export function GetMap(lat : number, lng: number){
     const key : string = "";
@@ -43,10 +19,10 @@ export function GetMap(lat : number, lng: number){
 
 }
 
-export function PromiseToAirQualityData(promisesResult : Array<any> ) : Result1 {
+export function PromiseToAirQualityData(promisesResult : Array<rowSensor> ) : Result1 {
     let data: Array<DataLocation> = [];
     const promisesLocation: any[] = [];
-    promisesResult.forEach((singleResult: any) => {
+    promisesResult.forEach((singleResult: rowSensor) : void => {
         if (singleResult instanceof Array && singleResult.length > 0){
             let location = singleResult[0].location;
             let long : number = Number.parseFloat(location.longitude);
@@ -70,7 +46,7 @@ export function PromiseToAirQualityData(promisesResult : Array<any> ) : Result1 
                     placeID: placeID,
                 },
                 DataSnapshot: singleResult.map(result => {
-                    const Values : any[] = [...result.sensordatavalues];
+                    const Values: Array<rowsensordatavalues> = [...result.sensordatavalues];
                     const timeStamp: Date = result.timestamp;
                     return {
                         Values,
