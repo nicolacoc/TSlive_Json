@@ -93,11 +93,11 @@ function GetDataSnapshot(DataSnapshot: Array<DataSnapshot>):string {
             let type : string|null|undefined;
             if (value_type === "temperature") {
                 type = "Temperatura";
-                Value1 = `${Math.round(value)}°C`
+                Value1 = `${Math.round(Number.parseFloat(value))}°C`
             }
             else if(value_type === "humidity") {
                 type = "Umidità";
-                Value1 = `${Math.round(value)}%`
+                Value1 = `${Math.round(Number.parseFloat(value))}%`
             }
             else if(value_type === "pressure") {
                 type= "Pressione";

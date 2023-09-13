@@ -8,7 +8,7 @@ export type DataLocation = {
 }
 
 export type DataSnapshot = {
-    Values: Array<any>,
+    Values: Array<rowsensordatavalues>,
     timeStamp: Date
 }
 
@@ -21,7 +21,7 @@ export type page = {
 }
 
 export type Result1 = {
-    data: DataLocation[],
+    data: Array<DataLocation>,
     promisesLocation: Array<any>
 }
 
