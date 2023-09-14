@@ -36,7 +36,7 @@ export type rowSensor = {
         }
 
     },
-    sampling_rate?: string,
+    sampling_rate: string | null,
     location: Location,
     timestamp: Date,
     sensordatavalues: Array<rowsensordatavalues>,
@@ -50,7 +50,7 @@ export type rowsensordatavalues = {
     id: number
 }
 
-type Location = {
+export type Location = {
     indoor: number,
     altitude: string,
     latitude: string,
@@ -59,6 +59,8 @@ type Location = {
     longitude: string,
     id: number
 }
+
+
 
 
 

@@ -1,5 +1,5 @@
 import {FetchLocation} from "./fetch";
-import {DataLocation, DataSnapshot, page, Result1, rowSensor, rowsensordatavalues} from "./type"
+import {DataLocation, DataSnapshot, page, Result1, rowSensor, rowsensordatavalues, Location} from "./type"
 
 
 
@@ -19,12 +19,12 @@ export function GetMap(lat : number, lng: number){
 
 }
 
-export function PromiseToAirQualityData(promisesResult : Array<rowSensor> ) : Result1 {
-    let data: Array<DataLocation> = [];
+export function PromiseToAirQualityData(promisesResult : Array<Array<rowSensor>> ) : Result1 {
+    const data: Array<DataLocation> = [];
     const promisesLocation: any[] = [];
-    promisesResult.forEach((singleResult: rowSensor) : void => {
+    promisesResult.forEach((singleResult: Array<rowSensor>) : void => {
         if (singleResult instanceof Array && singleResult.length > 0){
-            let location = singleResult[0].location;
+            let location: Location = singleResult[0].location;
             let long : number = Number.parseFloat(location.longitude);
             let lat : number = Number.parseFloat(location.latitude);
             let placeID : number = location.id;
