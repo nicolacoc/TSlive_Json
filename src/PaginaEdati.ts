@@ -1,10 +1,9 @@
 import {FetchLocation} from "./fetch";
-import {DataLocation, DataSnapshot, page, Result1, rowSensor, rowsensordatavalues, Location} from "./type"
+import {DataLocation, DataSnapshot, Location, location2, page, Result1, rowSensor, rowsensordatavalues} from "./type"
 
 
-
-export function GetMap(lat : number, lng: number){
-    const key : string = "";
+export function GetMap(lat: number, lng: number) {
+    const key: string = "";
     return `<div class="map">
             <iframe
                 width="450"
@@ -19,20 +18,20 @@ export function GetMap(lat : number, lng: number){
 
 }
 
-export function PromiseToAirQualityData(promisesResult : Array<Array<rowSensor>> ) : Result1 {
+export function PromiseToAirQualityData(promisesResult: Array<Array<rowSensor>>): Result1 {
     const data: Array<DataLocation> = [];
     const promisesLocation: any[] = [];
-    promisesResult.forEach((singleResult: Array<rowSensor>) : void => {
-        if (singleResult instanceof Array && singleResult.length > 0){
+    promisesResult.forEach((singleResult: Array<rowSensor>): void => {
+        if (singleResult instanceof Array && singleResult.length > 0) {
             let location: Location = singleResult[0].location;
-            let long : number = Number.parseFloat(location.longitude);
-            let lat : number = Number.parseFloat(location.latitude);
-            let placeID : number = location.id;
+            let long: number = Number.parseFloat(location.longitude);
+            let lat: number = Number.parseFloat(location.latitude);
+            let placeID: number = location.id;
 
-            if (isNaN(placeID)){
+            if (isNaN(placeID)) {
                 throw new Error("Place id non è un numero!!")
             }
-            if (isNaN(long)||isNaN(lat)){
+            if (isNaN(long) || isNaN(lat)) {
                 throw new Error("Long o Lat non è un numero!!");
             }
 
@@ -56,66 +55,57 @@ export function PromiseToAirQualityData(promisesResult : Array<Array<rowSensor>>
             })
 
 
-
-
         }
     })
     return {data, promisesLocation};
 }
 
 
-export async function getResult({data, promisesLocation}: Result1): Promise<page>  {
-    let DatiArray : any = [... data];
-    let result2 : any = await Promise.all(promisesLocation);
-    let location : any[] = [];
-    result2.forEach((result4 : any)=>{
-        let address : any = result4.address;
-        let country : string =  address.country;
-        let city: string =  address.city;
-        if (typeof city === "undefined"){
+export async function getResult({data, promisesLocation}: Result1): Promise<page> {
+    let DatiArray: any = [...data];
+    let result2: any = await Promise.all(promisesLocation);
+    let location: any[] = [];
+    result2.forEach((result4: any) => {
+        let address: any = result4.address;
+        let country: string = address.country;
+        let city: string = address.city;
+        if (typeof city === "undefined") {
             city = address.town;
         }
         location.push({country, city})
-
 
 
     })
     return {DatiArray, location}
 }
 
-function GetDataSnapshot(DataSnapshot: Array<DataSnapshot>):string {
-    let tot : string =``
-    DataSnapshot.forEach(({Values, timeStamp}:DataSnapshot) :void => {
-        tot+=`<ul class="snapshot-data list-group list-group-flush">`
+function GetDataSnapshot(DataSnapshot: Array<DataSnapshot>): string {
+    let tot: string = ``
+    DataSnapshot.forEach(({Values, timeStamp}: DataSnapshot): void => {
+        tot += `<ul class="snapshot-data list-group list-group-flush">`
 
-        Values.forEach(({value_type, value}) :void => {
-            let Value1 : string|null|undefined;
-            let type : string|null|undefined;
+        Values.forEach(({value_type, value}): void => {
+            let Value1: string | null | undefined;
+            let type: string | null | undefined;
             if (value_type === "temperature") {
                 type = "Temperatura";
                 Value1 = `${Math.round(Number.parseFloat(value))}°C`
-            }
-            else if(value_type === "humidity") {
+            } else if (value_type === "humidity") {
                 type = "Umidità";
                 Value1 = `${Math.round(Number.parseFloat(value))}%`
-            }
-            else if(value_type === "pressure") {
-                type= "Pressione";
+            } else if (value_type === "pressure") {
+                type = "Pressione";
                 Value1 = `${value}hPa`
-            }
-            else if(value_type === "pressure_at_sealevel") {
-                type="Pressione al livello del mare"
+            } else if (value_type === "pressure_at_sealevel") {
+                type = "Pressione al livello del mare"
                 Value1 = `${value}hPa`
-            }
-            else if(value_type === "P1") {
-                type="PM10"
+            } else if (value_type === "P1") {
+                type = "PM10"
                 Value1 = `${value}`
-            }
-            else if(value_type === "P2") {
-                type="PM25"
+            } else if (value_type === "P2") {
+                type = "PM25"
                 Value1 = `${value}`
-            }
-            else {
+            } else {
                 type = value_type;
                 Value1 = `${value}`;
             }
@@ -139,24 +129,24 @@ function GetDataSnapshot(DataSnapshot: Array<DataSnapshot>):string {
 }
 
 
-export function getToPage({DatiArray, location}: page): void{
-    const cont: Element = document.querySelector(".container");
+export function getToPage({DatiArray, location}: page): void {
+    const cont: HTMLDivElement | null = document.querySelector(".container");
 
-    let tot : string = ``;
+    if (cont) {
+        let tot: string = ``;
 
 
+        for (let i: number = 0; i < DatiArray.length; i++) {
+            const row: HTMLDivElement = document.createElement("div");
+            row.setAttribute("class", "row");
+            let Location2: location2 = DatiArray[i].Location;
+            let lat: number = Location2.lat;
+            let lng: number = Location2.long;
+            let country: string = location[i].country;
+            let city: string = location[i].city;
+            let DataSnapshot: Array<DataSnapshot> = DatiArray[i].DataSnapshot;
 
-    for (let i= 0; i < DatiArray.length; i++) {
-        const row = document.createElement("div");
-        row.setAttribute("class", "row");
-        let Location2 = DatiArray[i].Location;
-        let lat = Location2.lat;
-        let lng = Location2.long;
-        let country= location[i].country;
-        let city = location[i].city;
-        let DataSnapshot = DatiArray[i].DataSnapshot;
-
-        tot += `
+            tot += `
         <div class="col">
             <h1>Air Quality:</h1>
             <div class="card" style="width: 450px;">
@@ -171,25 +161,25 @@ export function getToPage({DatiArray, location}: page): void{
 
 
 `
-        tot+= GetDataSnapshot(DataSnapshot);
+            tot += GetDataSnapshot(DataSnapshot);
 
-        tot+=`</div>
+            tot += `</div>
                 </div>
             </div>
         </div>`
 
 
-        i++;
-        if (i < DatiArray.length) {
-            Location2 = DatiArray[i].Location;
-            lat = Location2.lat;
-            lng = Location2.long;
+            i++;
+            if (i < DatiArray.length) {
+                Location2 = DatiArray[i].Location;
+                lat = Location2.lat;
+                lng = Location2.long;
 
 
-            country= location[i].country;
-            city = location[i].city;
-            DataSnapshot = DatiArray[i].DataSnapshot;
-            tot += `
+                country = location[i].country;
+                city = location[i].city;
+                DataSnapshot = DatiArray[i].DataSnapshot;
+                tot += `
         <div class="col">
             <h1>Air Quality:</h1>
             <div class="card" style="width: 450px;">
@@ -205,21 +195,17 @@ export function getToPage({DatiArray, location}: page): void{
 
 
                         `
-            tot+= GetDataSnapshot(DataSnapshot);
+                tot += GetDataSnapshot(DataSnapshot);
 
-            tot+=`</div>
+                tot += `</div>
                     </div>
                 </div>
             </div>`
+            }
+            row.innerHTML = tot;
+            cont.append(row);
         }
-        row.innerHTML= tot;
-        cont.append(row);
-
     }
-
-
-
-
 
 
 }

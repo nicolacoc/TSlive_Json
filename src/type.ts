@@ -1,11 +1,13 @@
 export type DataLocation = {
-    Location: {
-        long: number,
-        lat: number,
-        placeID: number,
-    },
+    Location: location2,
     DataSnapshot: Array<DataSnapshot>
 }
+
+export type location2 = {
+     long: number,
+     lat: number,
+     placeID: number,
+ }
 
 export type DataSnapshot = {
     Values: Array<rowsensordatavalues>,
