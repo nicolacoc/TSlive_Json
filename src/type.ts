@@ -1,33 +1,22 @@
 export type DataLocation = {
-    Location: location2,
+    Location: Location2,
     DataSnapshot: Array<DataSnapshot>
 }
 
-export type location2 = {
-     long: number,
-     lat: number,
-     placeID: number,
- }
+export type Location2 = {
+    City: string,
+    Country: string,
+    Lat: number,
+    Long: number
+}
 
 export type DataSnapshot = {
-    Values: Array<rowsensordatavalues>,
-    timeStamp: Date
+    Values: Array<Rowsensordatavalues>,
+    TimeStamp: Date
 }
 
-export type page = {
-    DatiArray: Array<DataLocation>,
-    location: {
-        country: string,
-        city: string
-    }[]
-}
 
-export type Result1 = {
-    data: Array<DataLocation>,
-    promisesLocation: Array<any>
-}
-
-export type rowSensor = {
+export type RowSensor = {
     sensor: {
         pin: string,
         id: number,
@@ -41,12 +30,12 @@ export type rowSensor = {
     sampling_rate: string | null,
     location: Location,
     timestamp: Date,
-    sensordatavalues: Array<rowsensordatavalues>,
+    sensordatavalues: Array<Rowsensordatavalues>,
     id: number
 
 }
 
-export type rowsensordatavalues = {
+export type Rowsensordatavalues = {
     value_type: string,
     value: string,
     id: number
@@ -62,7 +51,40 @@ export type Location = {
     id: number
 }
 
+export type LocationItem = {
+    place_id: number,
+    licence: string,
+    osm_type: string,
+    osm_id: number,
+    lat: string| number,
+    lon: string| number,
+    category: string,
+    type: string,
+    place_rank: number,
+    importance: number,
+    addresstype: string,
+    name: string,
+    display_name: string
+    address: AddressItems,
 
+    boundingbox:Array<number>
+}
+
+export type AddressItems = {
+        amenity:string,
+        house_number:string,
+        road:string,
+        neighbourhood: string,
+        suburb:string,
+        city_district:string,
+        city?:string,
+        town?:string,
+        state:string,
+        "ISO3166-2-lvl4":string,
+        postcode: string,
+        country:string,
+        country_code:string
+}
 
 
 

@@ -1,8 +1,17 @@
 import {FetchLocation} from "./fetch";
-import {DataLocation, DataSnapshot, Location, location2, page, Result1, rowSensor, rowsensordatavalues} from "./type"
+import {
+    AddressItems,
+    DataLocation,
+    DataSnapshot,
+    Location,
+    Location2,
+    LocationItem,
+    RowSensor,
+    Rowsensordatavalues
+} from "./type"
 
 
-export function GetMap(lat: number, lng: number) {
+export function GetMap(lat: number, lng: number): string {
     const key: string = "";
     return `<div class="map">
             <iframe
@@ -18,71 +27,75 @@ export function GetMap(lat: number, lng: number) {
 
 }
 
-export function PromiseToAirQualityData(promisesResult: Array<Array<rowSensor>>): Result1 {
-    const data: Array<DataLocation> = [];
-    const promisesLocation: any[] = [];
-    promisesResult.forEach((singleResult: Array<rowSensor>): void => {
-        if (singleResult instanceof Array && singleResult.length > 0) {
-            let location: Location = singleResult[0].location;
-            let long: number = Number.parseFloat(location.longitude);
-            let lat: number = Number.parseFloat(location.latitude);
-            let placeID: number = location.id;
+export function PromiseToAirQualityData(PromisesResult: Array<Array<RowSensor>>): Promise<DataLocation>[] {
 
-            if (isNaN(placeID)) {
+    // const promisesLocation: any[] = [];
+    return PromisesResult.map( async (singleResult: Array<RowSensor>): Promise<DataLocation> => {
+        if (singleResult instanceof Array) {
+            let Location: Location = singleResult[0].location;
+            let Long: number = Number.parseFloat(Location.longitude);
+            let Lat: number = Number.parseFloat(Location.latitude);
+            let PlaceID: number = Location.id;
+
+            if (isNaN(PlaceID)) {
                 throw new Error("Place id non è un numero!!")
             }
-            if (isNaN(long) || isNaN(lat)) {
+            if (isNaN(Long) || isNaN(Lat)) {
                 throw new Error("Long o Lat non è un numero!!");
             }
 
-            promisesLocation.push(FetchLocation(lat, long))
+            // promisesLocation.push(FetchLocation(lat, long))
+            const LocationItem: LocationItem = await FetchLocation(Lat, Long);
+            let Address: AddressItems = LocationItem.address;
+            let City: string = Address.city;
+                if (typeof City === "undefined") {
+                    City = Address.town;
+                }
 
-
-            data.push({
+            return {
                 Location: {
-                    long: long,
-                    lat: lat,
-                    placeID: placeID,
+                    City: City,
+                    Country: Address.country,
+                    Lat: Lat,
+                    Long: Long
                 },
-                DataSnapshot: singleResult.map(result => {
-                    const Values: Array<rowsensordatavalues> = [...result.sensordatavalues];
-                    const timeStamp: Date = result.timestamp;
+                DataSnapshot: singleResult.map((Result: RowSensor): DataSnapshot => {
+                    const Values: Array<Rowsensordatavalues> = [...Result.sensordatavalues];
+                    const TimeStamp: Date = Result.timestamp;
                     return {
                         Values,
-                        timeStamp
+                        TimeStamp
                     }
                 })
-            })
+            };
 
 
         }
     })
-    return {data, promisesLocation};
+
 }
 
 
-export async function getResult({data, promisesLocation}: Result1): Promise<page> {
-    let DatiArray: any = [...data];
-    let result2: any = await Promise.all(promisesLocation);
-    let location: any[] = [];
-    result2.forEach((result4: any) => {
-        let address: any = result4.address;
-        let country: string = address.country;
-        let city: string = address.city;
-        if (typeof city === "undefined") {
-            city = address.town;
-        }
-        location.push({country, city})
+export async function getResult(data:Array<Promise<DataLocation>>) : Promise<Array<DataLocation>> {
+    return await Promise.all(data);
+    // let location: any[] = [];
+    // // result2.forEach((result4: any) => {
+    //     let address: any = result4.address;
+    //     let country: string = address.country;
+    //     let city: string = address.city;
+    //     if (typeof city === "undefined") {
+    //         city = address.town;
+    //     }
+    //     location.push({country, city})
 
 
-    })
-    return {DatiArray, location}
+    // })
 }
 
 function GetDataSnapshot(DataSnapshot: Array<DataSnapshot>): string {
-    let tot: string = ``
-    DataSnapshot.forEach(({Values, timeStamp}: DataSnapshot): void => {
-        tot += `<ul class="snapshot-data list-group list-group-flush">`
+    let Tot: string = ``
+    DataSnapshot.forEach(({Values, TimeStamp}: DataSnapshot): void => {
+        Tot += `<ul class="snapshot-data list-group list-group-flush">`
 
         Values.forEach(({value_type, value}): void => {
             let Value1: string | null | undefined;
@@ -110,49 +123,49 @@ function GetDataSnapshot(DataSnapshot: Array<DataSnapshot>): string {
                 Value1 = `${value}`;
             }
 
-            tot += `<li class="list-group-item d-flex">
+            Tot += `<li class="list-group-item d-flex">
                                 <div class="row">
                                 <div class="col me-5">${type}</div>
                                 <div class="col">${Value1}</div>
                             </div>
                             </li>`
         })
-        let ts: Date = new Date(timeStamp);
-        tot += `
+        let ts: Date = new Date(TimeStamp);
+        Tot += `
                         </ul>
                         <div class="card-body text-end">
                             <strong>${ts.toLocaleDateString('it-IT')} ${ts.toLocaleTimeString('it-IT')}</strong>
                         </div>
                     `
     })
-    return tot;
+    return Tot;
 }
 
 
-export function getToPage({DatiArray, location}: page): void {
-    const cont: HTMLDivElement | null = document.querySelector(".container");
+export function getToPage(Data:Array<DataLocation>): void {
+    const Cont: HTMLDivElement | null = document.querySelector(".container");
 
-    if (cont) {
-        let tot: string = ``;
+    if (Cont) {
+        let Tot: string = ``;
 
 
-        for (let i: number = 0; i < DatiArray.length; i++) {
-            const row: HTMLDivElement = document.createElement("div");
-            row.setAttribute("class", "row");
-            let Location2: location2 = DatiArray[i].Location;
-            let lat: number = Location2.lat;
-            let lng: number = Location2.long;
-            let country: string = location[i].country;
-            let city: string = location[i].city;
-            let DataSnapshot: Array<DataSnapshot> = DatiArray[i].DataSnapshot;
+        for (let i: number = 0; i < Data.length; i++) {
+            const Row: HTMLDivElement = document.createElement("div");
+            Row.setAttribute("class", "row");
+            let Location: Location2 = Data[i].Location;
+            let Lat: number = Location.Lat;
+            let Lng: number = Location.Long;
+            let Country: string = Location.Country;
+            let City: string = Location.City;
+            let DataSnapshot: Array<DataSnapshot> = Data[i].DataSnapshot;
 
-            tot += `
+            Tot += `
         <div class="col">
             <h1>Air Quality:</h1>
             <div class="card" style="width: 450px;">
-               ${GetMap(lat, lng)}
+               ${GetMap(Lat, Lng)}
                 <div class="card-body">
-                    <h5 class="card-title">${city} (${country})</h5>
+                    <h5 class="card-title">${City} (${Country})</h5>
                 </div>
 
                     <div class="card-body">
@@ -161,31 +174,30 @@ export function getToPage({DatiArray, location}: page): void {
 
 
 `
-            tot += GetDataSnapshot(DataSnapshot);
+            Tot += GetDataSnapshot(DataSnapshot);
 
-            tot += `</div>
+            Tot += `</div>
                 </div>
             </div>
         </div>`
 
 
             i++;
-            if (i < DatiArray.length) {
-                Location2 = DatiArray[i].Location;
-                lat = Location2.lat;
-                lng = Location2.long;
+            if (i < Data.length) {
+                Location = Data[i].Location;
+                Lat = Location.Lat;
+                Lng= Location.Long;
+                Country = Location.Country;
+                City = Location.City;
+                DataSnapshot = Data[i].DataSnapshot;
 
-
-                country = location[i].country;
-                city = location[i].city;
-                DataSnapshot = DatiArray[i].DataSnapshot;
-                tot += `
+                Tot += `
         <div class="col">
             <h1>Air Quality:</h1>
             <div class="card" style="width: 450px;">
-               ${GetMap(lat, lng)}
+               ${GetMap(Lat, Lng)}
                 <div class="card-body">
-                    <h5 class="card-title">${city} (${country})</h5>
+                    <h5 class="card-title">${City} (${Country})</h5>
                 </div>
 
                     <div class="card-body">
@@ -195,15 +207,15 @@ export function getToPage({DatiArray, location}: page): void {
 
 
                         `
-                tot += GetDataSnapshot(DataSnapshot);
+                Tot += GetDataSnapshot(DataSnapshot);
 
-                tot += `</div>
+                Tot += `</div>
                     </div>
                 </div>
             </div>`
             }
-            row.innerHTML = tot;
-            cont.append(row);
+            Row.innerHTML = Tot;
+            Cont.append(Row);
         }
     }
 

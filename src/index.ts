@@ -1,14 +1,14 @@
 import {getAirQualityData} from "./fetch";
 import {getResult, getToPage, PromiseToAirQualityData} from "./PaginaEdati"
-import {rowSensor} from "./type"
+import {RowSensor} from "./type"
 
 
-const promises : Array<Promise<Array<rowSensor>>> = [
-    getAirQualityData("https://data.sensor.community/airrohr/v1/sensor/5456/"),
-    getAirQualityData("https://data.sensor.community/airrohr/v1/sensor/50530/")
+const promises : Array<Promise<Array<RowSensor>>> = [
+    getAirQualityData("https://data.sensor.community/airrohr/v1/sensor/5959/"),
+    getAirQualityData("https://data.sensor.community/airrohr/v1/sensor/8059/")
 ]
 
-const p : Promise<Awaited<Array<Array<rowSensor>>>> = Promise.all(promises);
+const p : Promise<RowSensor[][]> = Promise.all(promises);
 
 p.then(PromiseToAirQualityData).then(getResult).then(getToPage)
 

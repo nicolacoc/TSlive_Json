@@ -1,5 +1,6 @@
+import {LocationItem, RowSensor} from "./type";
 
-export async function getAirQualityData(url: string): Promise<any>{
+export async function getAirQualityData(url: string): Promise<Array<RowSensor>>{
 
     const response : Response = await fetch(url);
     const status : boolean = response.ok;
@@ -10,7 +11,7 @@ export async function getAirQualityData(url: string): Promise<any>{
 }
 
 
-export async function FetchLocation(lat: number,lng: number): Promise<any>{
+export async function FetchLocation(lat: number,lng: number): Promise<LocationItem>{
 
     const response : Response = await fetch(`https://nominatim.openstreetmap.org/reverse.php?lat=${lat}&lon=${lng}&zoom=18&format=jsonv2`);
     const status : boolean = response.ok;
