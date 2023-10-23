@@ -10,9 +10,9 @@ import {
     RowSensorDataValues
 } from "./type"
 
-export async function loadSensors(urls: string[]){
-    const requests = urls.map(url=> getAirQualityData(url));
-    const p = await Promise.all(requests);
+export async function loadSensors(urls: string[]):Promise<void>{
+    const requests: Promise<RowSensor[]>[] = urls.map((url: string)=> getAirQualityData(url));
+    const p: RowSensor[][] = await Promise.all(requests);
     await displayData(p);
 }
 
@@ -83,8 +83,8 @@ function promiseToAirQualityData(PromisesResult: Array<Array<RowSensor>>): Promi
 
 
 export async function displayData(PromisesResult: Array<Array<RowSensor>>):Promise<void>{
-    const promises = promiseToAirQualityData(PromisesResult);
-    const results = await Promise.all(promises);
+    const promises:Promise<DataLocation>[] = promiseToAirQualityData(PromisesResult);
+    const results: DataLocation[] = await Promise.all(promises);
     getToPage(results);
 }
 
