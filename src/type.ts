@@ -11,7 +11,7 @@ export type Location2 = {
 }
 
 export type DataSnapshot = {
-    Values: Array<Rowsensordatavalues>,
+    Values: Array<RowSensorDataValues>,
     TimeStamp: Date
 }
 
@@ -30,12 +30,12 @@ export type RowSensor = {
     sampling_rate: string | null,
     location: Location,
     timestamp: Date,
-    sensordatavalues: Array<Rowsensordatavalues>,
+    sensordatavalues: Array<RowSensorDataValues>,
     id: number
 
 }
 
-export type Rowsensordatavalues = {
+export type RowSensorDataValues = {
     value_type: string,
     value: string,
     id: number

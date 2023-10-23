@@ -1,4 +1,4 @@
-import {FetchLocation} from "./fetch";
+import {FetchLocation, getAirQualityData} from "./fetch";
 import {
     AddressItems,
     DataLocation,
@@ -7,17 +7,23 @@ import {
     Location2,
     LocationItem,
     RowSensor,
-    Rowsensordatavalues
+    RowSensorDataValues
 } from "./type"
 
+export async function loadSensors(urls: string[]){
+    const requests = urls.map(url=> getAirQualityData(url));
+    const p = await Promise.all(requests);
+    await displayData(p);
+}
 
-export function GetMap(lat: number, lng: number): string {
+
+
+export function getMap(lat: number, lng: number): string {
     const key: string = "";
     return `<div class="map">
             <iframe
                 width="450"
                 height="250"
-                frameBorder="0"
                 style="border:0"
                 referrerPolicy="no-referrer-when-downgrade"
                 src="https://www.google.com/maps/embed/v1/view?key=${key}&center=${lat},${lng}&zoom=18&maptype=satellite"
@@ -27,7 +33,7 @@ export function GetMap(lat: number, lng: number): string {
 
 }
 
-export function PromiseToAirQualityData(PromisesResult: Array<Array<RowSensor>>): Promise<DataLocation>[] {
+function promiseToAirQualityData(PromisesResult: Array<Array<RowSensor>>): Promise<DataLocation>[] {
 
     // const promisesLocation: any[] = [];
     return PromisesResult.map( async (singleResult: Array<RowSensor>): Promise<DataLocation> => {
@@ -60,7 +66,7 @@ export function PromiseToAirQualityData(PromisesResult: Array<Array<RowSensor>>)
                     Long: Long
                 },
                 DataSnapshot: singleResult.map((Result: RowSensor): DataSnapshot => {
-                    const Values: Array<Rowsensordatavalues> = [...Result.sensordatavalues];
+                    const Values: Array<RowSensorDataValues> = [...Result.sensordatavalues];
                     const TimeStamp: Date = Result.timestamp;
                     return {
                         Values,
@@ -76,23 +82,14 @@ export function PromiseToAirQualityData(PromisesResult: Array<Array<RowSensor>>)
 }
 
 
-export async function getResult(data:Array<Promise<DataLocation>>) : Promise<Array<DataLocation>> {
-    return await Promise.all(data);
-    // let location: any[] = [];
-    // // result2.forEach((result4: any) => {
-    //     let address: any = result4.address;
-    //     let country: string = address.country;
-    //     let city: string = address.city;
-    //     if (typeof city === "undefined") {
-    //         city = address.town;
-    //     }
-    //     location.push({country, city})
-
-
-    // })
+export async function displayData(PromisesResult: Array<Array<RowSensor>>):Promise<void>{
+    const promises = promiseToAirQualityData(PromisesResult);
+    const results = await Promise.all(promises);
+    getToPage(results);
 }
 
-function GetDataSnapshot(DataSnapshot: Array<DataSnapshot>): string {
+
+function getDataSnapshot(DataSnapshot: Array<DataSnapshot>): string {
     let Tot: string = ``
     DataSnapshot.forEach(({Values, TimeStamp}: DataSnapshot): void => {
         Tot += `<ul class="snapshot-data list-group list-group-flush">`
@@ -142,7 +139,7 @@ function GetDataSnapshot(DataSnapshot: Array<DataSnapshot>): string {
 }
 
 
-export function getToPage(Data:Array<DataLocation>): void {
+function getToPage(Data:Array<DataLocation>): void {
     const Cont: HTMLDivElement | null = document.querySelector(".container");
 
     if (Cont) {
@@ -163,7 +160,7 @@ export function getToPage(Data:Array<DataLocation>): void {
         <div class="col">
             <h1>Air Quality:</h1>
             <div class="card" style="width: 450px;">
-               ${GetMap(Lat, Lng)}
+               ${getMap(Lat, Lng)}
                 <div class="card-body">
                     <h5 class="card-title">${City} (${Country})</h5>
                 </div>
@@ -174,7 +171,7 @@ export function getToPage(Data:Array<DataLocation>): void {
 
 
 `
-            Tot += GetDataSnapshot(DataSnapshot);
+            Tot += getDataSnapshot(DataSnapshot);
 
             Tot += `</div>
                 </div>
@@ -195,7 +192,7 @@ export function getToPage(Data:Array<DataLocation>): void {
         <div class="col">
             <h1>Air Quality:</h1>
             <div class="card" style="width: 450px;">
-               ${GetMap(Lat, Lng)}
+               ${getMap(Lat, Lng)}
                 <div class="card-body">
                     <h5 class="card-title">${City} (${Country})</h5>
                 </div>
@@ -207,7 +204,7 @@ export function getToPage(Data:Array<DataLocation>): void {
 
 
                         `
-                Tot += GetDataSnapshot(DataSnapshot);
+                Tot += getDataSnapshot(DataSnapshot);
 
                 Tot += `</div>
                     </div>
